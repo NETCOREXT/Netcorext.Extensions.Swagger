@@ -23,7 +23,7 @@ public class PagingOperationFilter : IOperationFilter
 
             operation.Parameters.Add(new OpenApiParameter
                                      {
-                                         Name = nameof(Paging.Offset).ToLower(),
+                                         Name = nameof(Paging.Offset),
                                          In = ParameterLocation.Query,
                                          Schema = new OpenApiSchema
                                                   {
@@ -34,7 +34,7 @@ public class PagingOperationFilter : IOperationFilter
 
             operation.Parameters.Add(new OpenApiParameter
                                      {
-                                         Name = nameof(Paging.Limit).ToLower(),
+                                         Name = nameof(Paging.Limit),
                                          In = ParameterLocation.Query,
                                          Schema = new OpenApiSchema
                                                   {
@@ -47,24 +47,24 @@ public class PagingOperationFilter : IOperationFilter
 
             context.ApiDescription.ParameterDescriptions.Add(new ApiParameterDescription
                                                              {
-                                                                 Name = nameof(Paging.Offset).ToLower(),
+                                                                 Name = nameof(Paging.Offset),
                                                                  Source = BindingSource.Query,
                                                                  Type = typeof(int?),
                                                                  ParameterDescriptor = new ParameterDescriptor
                                                                                        {
-                                                                                           Name = nameof(Paging.Offset).ToLower(),
+                                                                                           Name = nameof(Paging.Offset),
                                                                                            ParameterType = typeof(int?)
                                                                                        }
                                                              });
 
             context.ApiDescription.ParameterDescriptions.Add(new ApiParameterDescription
                                                              {
-                                                                 Name = nameof(Paging.Limit).ToLower(),
+                                                                 Name = nameof(Paging.Limit),
                                                                  Source = BindingSource.Query,
                                                                  Type = typeof(int?),
                                                                  ParameterDescriptor = new ParameterDescriptor
                                                                                        {
-                                                                                           Name = nameof(Paging.Limit).ToLower(),
+                                                                                           Name = nameof(Paging.Limit),
                                                                                            ParameterType = typeof(int?)
                                                                                        }
                                                              });

@@ -20,6 +20,6 @@ public static class ApiExplorerExtension
                                         .Aggregate(parameterPath, (current, parameterExpression) => $".{current}.".Replace($".{parameterExpression.Name}.", "", StringComparison.CurrentCultureIgnoreCase))
                                         .Trim('.');
 
-        return parameterPath == parameter.Name;
+        return parameter.Name.Equals(parameterPath, StringComparison.CurrentCultureIgnoreCase);
     }
 }
