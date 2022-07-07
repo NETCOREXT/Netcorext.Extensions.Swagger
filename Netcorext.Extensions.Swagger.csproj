@@ -26,6 +26,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Netcorext.Contracts.Abstractions" Version="1.0.1-dev.*" />
+  </ItemGroup>
+
   <Target Name="IncludeProjectReferences" DependsOnTargets="ResolveReferences">
     <ItemGroup>
       <IncludeBuildOutput />
