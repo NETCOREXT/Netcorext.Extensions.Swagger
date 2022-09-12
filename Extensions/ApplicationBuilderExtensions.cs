@@ -9,49 +9,51 @@ public static class ApplicationBuilderExtensions
     {
         var app = (WebApplication)builder;
 
-        app.MapSwagger($"/{documentRoute.Trim('/')}/{swaggerJsonRoutePattern}");
+        documentRoute = $"/{documentRoute.Trim('/')}";
+
+        app.MapSwagger($"{documentRoute}/{swaggerJsonRoutePattern}");
 
         var efp = new EmbeddedFileProvider(typeof(ApplicationBuilderExtensions).Assembly, typeof(ApplicationBuilderExtensions).Assembly.GetName().Name + ".wwwroot");
 
-        app.MapGet($"/{documentRoute.Trim('/')}/{{*remainder}}", context =>
-                                                                 {
-                                                                     var path = (context.Request.Path.Value ?? "")
-                                                                        .Replace(documentRoute, "", StringComparison.CurrentCultureIgnoreCase);
+        app.MapGet($"{documentRoute}/{{*remainder}}", context =>
+                                                      {
+                                                          var path = (context.Request.Path.Value ?? "")
+                                                             .Replace(documentRoute, "", StringComparison.CurrentCultureIgnoreCase);
 
-                                                                     if (string.IsNullOrWhiteSpace(path))
-                                                                     {
-                                                                         context.Response.Redirect($"/{documentRoute.Trim('/')}/index.html");
+                                                          if (string.IsNullOrWhiteSpace(path))
+                                                          {
+                                                              context.Response.Redirect($"{documentRoute}/index.html");
 
-                                                                         return Task.CompletedTask;
-                                                                     }
+                                                              return Task.CompletedTask;
+                                                          }
 
-                                                                     var fi = efp.GetFileInfo(path);
+                                                          var fi = efp.GetFileInfo(path);
 
-                                                                     if (!fi.Exists)
-                                                                     {
-                                                                         context.Response.StatusCode = 404;
+                                                          if (!fi.Exists)
+                                                          {
+                                                              context.Response.StatusCode = 404;
 
-                                                                         return Task.CompletedTask;
-                                                                     }
+                                                              return Task.CompletedTask;
+                                                          }
 
-                                                                     using var stream = fi.CreateReadStream();
+                                                          using var stream = fi.CreateReadStream();
 
-                                                                     using var sr = new StreamReader(stream);
+                                                          using var sr = new StreamReader(stream);
 
-                                                                     var content = sr.ReadToEnd();
+                                                          var content = sr.ReadToEnd();
 
-                                                                     if (!path.Equals("/swagger-initializer.js", StringComparison.CurrentCultureIgnoreCase)) return context.Response.WriteAsync(content);
+                                                          if (!path.Equals("/swagger-initializer.js", StringComparison.CurrentCultureIgnoreCase)) return context.Response.WriteAsync(content);
 
-                                                                     var swaggerDoc = swaggerJsonRoutePattern.Replace("{documentName}", defaultVersion, StringComparison.CurrentCultureIgnoreCase);
+                                                          var swaggerDoc = swaggerJsonRoutePattern.Replace("{documentName}", defaultVersion, StringComparison.CurrentCultureIgnoreCase);
 
-                                                                     swaggerDoc = Regex.Replace(swaggerDoc, @"\{.*\}", "json", RegexOptions.IgnoreCase);
+                                                          swaggerDoc = Regex.Replace(swaggerDoc, @"\{.*\}", "json", RegexOptions.IgnoreCase);
 
-                                                                     swaggerDoc = $"/{documentRoute.Trim('/')}/{swaggerDoc}";
+                                                          swaggerDoc = $"{documentRoute}/{swaggerDoc}";
                                                                      
-                                                                     content = Regex.Replace(content, @"url:.*,", "url: location.origin + '" + swaggerDoc + "',", RegexOptions.IgnoreCase);
+                                                          content = Regex.Replace(content, @"url:.*,", "url: location.origin + '" + swaggerDoc + "',", RegexOptions.IgnoreCase);
 
-                                                                     return context.Response.WriteAsync(content);
-                                                                 });
+                                                          return context.Response.WriteAsync(content);
+                                                      });
 
         return app;
     }
