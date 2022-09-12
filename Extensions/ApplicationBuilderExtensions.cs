@@ -1,32 +1,57 @@
-using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders;
 
 namespace Netcorext.Extensions.Swagger.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static IApplicationBuilder UseSwagger(this IApplicationBuilder builder, string name, string documentRoutePrefix = "/docs", string documentRoutePattern = "/docs/{*remainder}", string swaggerJsonRoutePattern = "/docs/{documentName}/swagger.{json|yaml}")
+    public static IApplicationBuilder UseSwagger(this IApplicationBuilder builder, string documentRoute = "/docs", string swaggerJsonRoutePattern = "{documentName}/swagger.{json|yaml|yml}", string defaultVersion = "v1")
     {
         var app = (WebApplication)builder;
 
-        app.MapSwagger(swaggerJsonRoutePattern);
+        app.MapSwagger($"/{documentRoute.Trim('/')}/{swaggerJsonRoutePattern}");
 
-        using var scope = app.Services.CreateScope();
+        var efp = new EmbeddedFileProvider(typeof(ApplicationBuilderExtensions).Assembly, typeof(ApplicationBuilderExtensions).Assembly.GetName().Name + ".wwwroot");
 
-        var options = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<SwaggerUIOptions>>().Value;
+        app.MapGet($"/{documentRoute.Trim('/')}/{{*remainder}}", context =>
+                                                                 {
+                                                                     var path = (context.Request.Path.Value ?? "")
+                                                                        .Replace(documentRoute, "", StringComparison.CurrentCultureIgnoreCase);
 
-        options.SwaggerEndpoint("v1/swagger.json", name);
-        options.RoutePrefix = documentRoutePrefix.TrimStart('/');
+                                                                     if (string.IsNullOrWhiteSpace(path))
+                                                                     {
+                                                                         context.Response.Redirect($"/{documentRoute.Trim('/')}/index.html");
 
-        options.ConfigObject.Urls ??= new[] { new UrlDescriptor { Name = "V1 Docs", Url = "v1/swagger.json" } };
+                                                                         return Task.CompletedTask;
+                                                                     }
 
-        var endpoints = (IEndpointRouteBuilder)app;
+                                                                     var fi = efp.GetFileInfo(path);
 
-        var pipeline = endpoints.CreateApplicationBuilder()
-                                .UseMiddleware<SwaggerUIMiddleware>(options)
-                                .Build();
+                                                                     if (!fi.Exists)
+                                                                     {
+                                                                         context.Response.StatusCode = 404;
 
-        endpoints.MapGet(documentRoutePattern, pipeline);
+                                                                         return Task.CompletedTask;
+                                                                     }
+
+                                                                     using var stream = fi.CreateReadStream();
+
+                                                                     using var sr = new StreamReader(stream);
+
+                                                                     var content = sr.ReadToEnd();
+
+                                                                     if (!path.Equals("/swagger-initializer.js", StringComparison.CurrentCultureIgnoreCase)) return context.Response.WriteAsync(content);
+
+                                                                     var swaggerDoc = swaggerJsonRoutePattern.Replace("{documentName}", defaultVersion, StringComparison.CurrentCultureIgnoreCase);
+
+                                                                     swaggerDoc = Regex.Replace(swaggerDoc, @"\{.*\}", "json", RegexOptions.IgnoreCase);
+
+                                                                     swaggerDoc = $"/{documentRoute.Trim('/')}/{swaggerDoc}";
+                                                                     
+                                                                     content = Regex.Replace(content, @"url:.*,", "url: location.origin + '" + swaggerDoc + "',", RegexOptions.IgnoreCase);
+
+                                                                     return context.Response.WriteAsync(content);
+                                                                 });
 
         return app;
     }
