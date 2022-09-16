@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
 
-namespace Netcorext.Extensions.Swagger.Extensions;
+namespace Microsoft.AspNetCore.Builder;
 
 public static class ApplicationBuilderExtensions
 {
