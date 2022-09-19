@@ -14,6 +14,7 @@ public static class ServiceCollectionExtension
                                                                            {
                                                                                Type = SecuritySchemeType.Http,
                                                                                In = ParameterLocation.Header,
+                                                                               Name = "Authorization",
                                                                                BearerFormat = "JWT",
                                                                                Scheme = "Bearer"
                                                                            });
@@ -47,8 +48,7 @@ public static class ServiceCollectionExtension
                                                                                               Id = "Bearer",
                                                                                               Type = ReferenceType.SecurityScheme
                                                                                           }
-                                                                          },
-                                                                          Array.Empty<string>()
+                                                                          }, Array.Empty<string>()
                                                                       }
                                                                   });
 
@@ -62,8 +62,7 @@ public static class ServiceCollectionExtension
                                                                                               Id = "OAuth2",
                                                                                               Type = ReferenceType.SecurityScheme
                                                                                           }
-                                                                          },
-                                                                          Array.Empty<string>()
+                                                                          }, Array.Empty<string>()
                                                                       }
                                                                   });
                                    
@@ -81,6 +80,8 @@ public static class ServiceCollectionExtension
 
         if (Regex.IsMatch(id, @"^[a-zA-Z0-9\.\-_]+$")) return id;
         
-        return Regex.Replace(id, @"[^a-zA-Z0-9\.\-_]", "_");
+        id = Regex.Replace(id, @"[^a-zA-Z0-9\.\-_]", "_").Trim('_');
+
+        return id;
     }
 }
