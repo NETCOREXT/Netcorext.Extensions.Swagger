@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -66,9 +67,20 @@ public static class ServiceCollectionExtension
                                                                       }
                                                                   });
                                    
+                                   options.CustomSchemaIds(ReplaceCustomId);
+                                   
                                    setupAction?.Invoke(options);
                                });
         
         return services;
+    }
+
+    private static string ReplaceCustomId(Type type)
+    {
+        var id = type.ToString();
+
+        if (Regex.IsMatch(id, @"^[a-zA-Z0-9\.\-_]+$")) return id;
+        
+        return Regex.Replace(id, @"[^a-zA-Z0-9\.\-_]", "_");
     }
 }
