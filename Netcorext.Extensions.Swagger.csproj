@@ -32,16 +32,6 @@
   </ItemGroup>
   
   <Target Name="CopyFiles" AfterTargets="ResolveReferences">
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/index.html" Condition="!Exists('$(ProjectDir)wwwroot/index.html')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/index.css" Condition="!Exists('$(ProjectDir)wwwroot/index.css')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/favicon-16x16.png" Condition="!Exists('$(ProjectDir)wwwroot/favicon-16x16.png')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/favicon-32x32.png" Condition="!Exists('$(ProjectDir)wwwroot/favicon-32x32.png')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/oauth2-redirect.html" Condition="!Exists('$(ProjectDir)wwwroot/oauth2-redirect.html')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/swagger-ui.css" Condition="!Exists('$(ProjectDir)wwwroot/swagger-ui.css')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/swagger-initializer.js" Condition="!Exists('$(ProjectDir)wwwroot/swagger-initializer.js')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/swagger-ui-bundle.js" Condition="!Exists('$(ProjectDir)wwwroot/swagger-ui-bundle.js')" />
-    <DownloadFile DestinationFolder="$(ProjectDir)wwwroot" SourceUrl="https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/swagger-ui-standalone-preset.js" Condition="!Exists('$(ProjectDir)wwwroot/swagger-ui-standalone-preset.js')" />
-
     <ItemGroup>
       <EmbeddedResource Include="wwwroot/*" />
     </ItemGroup>

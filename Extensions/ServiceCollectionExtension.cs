@@ -15,16 +15,16 @@ public static class ServiceCollectionExtension
                                                                                Type = SecuritySchemeType.Http,
                                                                                In = ParameterLocation.Header,
                                                                                Name = "Authorization",
-                                                                               BearerFormat = "JWT",
-                                                                               Scheme = "Bearer"
+                                                                               BearerFormat = "jwt",
+                                                                               Scheme = "bearer"
                                                                            });
                                    
                                    options.AddSecurityDefinition("OAuth2", new OpenApiSecurityScheme
                                                                            {
                                                                                Type = SecuritySchemeType.OAuth2,
                                                                                In = ParameterLocation.Header,
-                                                                               BearerFormat = "JWT",
-                                                                               Scheme = "Bearer",
+                                                                               BearerFormat = "jwt",
+                                                                               Scheme = "bearer",
                                                                                Flows = new OpenApiOAuthFlows
                                                                                        {
                                                                                            Password = new OpenApiOAuthFlow

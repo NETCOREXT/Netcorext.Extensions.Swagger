@@ -378,6 +378,3 @@ docker-compose.yml
 vol/
 
 .vscode
-
-### Custom Files
-wwwroot/

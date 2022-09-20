@@ -51,7 +51,7 @@ public static class ApplicationBuilderExtensions
                                                           swaggerDoc = $"{documentRoute}/{swaggerDoc}";
                                                                      
                                                           content = Regex.Replace(content, @"url:.*,", "url: location.origin + '" + swaggerDoc + "',", RegexOptions.IgnoreCase);
-
+                                                          
                                                           return context.Response.WriteAsync(content);
                                                       });
 
