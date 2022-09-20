@@ -6,7 +6,7 @@ namespace Netcorext.Extensions.Swagger.Extensions;
 
 public static class SwaggerFilterExtension
 {
-    public static bool HasParameter<T>(this ApiParameterDescription parameter, Expression<Func<T, object>> propertySelector) where T : class
+    public static bool HasParameter<T>(this ApiParameterDescription parameter, Expression<Func<T, object?>> propertySelector) where T : class
     {
         if (parameter.ParameterDescriptor.ParameterType != typeof(T)) return false;
         
@@ -23,7 +23,7 @@ public static class SwaggerFilterExtension
         return parameter.Name.Equals(parameterPath, StringComparison.CurrentCultureIgnoreCase);
     }
     
-    public static bool HasProperty<T>(this PropertyInfo property, Expression<Func<T, object>> propertySelector) where T : class
+    public static bool HasProperty<T>(this PropertyInfo property, Expression<Func<T, object?>> propertySelector) where T : class
     {
         if (property.DeclaringType != typeof(T)) return false;
         

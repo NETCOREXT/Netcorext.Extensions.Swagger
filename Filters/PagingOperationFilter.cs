@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.OpenApi.Models;
 using Netcorext.Contracts;
@@ -7,67 +5,27 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Netcorext.Extensions.Swagger.Filters;
 
-public class PagingOperationFilter : IOperationFilter
+public class PagingOperationFilter : IOperationFilter, ISchemaFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        while (context.ApiDescription.ParameterDescriptions.FirstOrDefault(t => t.Type == typeof(Paging)) is { } parameterDescription)
-        {
-            if (parameterDescription.Type != typeof(Paging)) continue;
+        if (operation.Parameters == null || !operation.Parameters.Any())
+            return;
 
-            var parameter = operation.Parameters.FirstOrDefault(t => t.Name == parameterDescription.Name);
+        operation.Parameters = (from o in operation.Parameters
+                                join i in context.ApiDescription.ParameterDescriptions on o.Name.ToLower() equals i.Name.ToLower() into g
+                                from i in g.DefaultIfEmpty()
+                                where !(i.ParameterDescriptor.BindingInfo.BindingSource == BindingSource.Query && i.ParameterDescriptor.ParameterType == typeof(Paging) && string.Equals(i.Name, nameof(Paging.Count), StringComparison.CurrentCultureIgnoreCase))
+                                select o).ToList();
+    }
 
-            if (parameter == null) continue;
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (context.Type != typeof(Paging))
+            return;
 
-            operation.Parameters.Remove(parameter);
+        if (!schema.Properties.ContainsKey("count")) return;
 
-            operation.Parameters.Add(new OpenApiParameter
-                                     {
-                                         Name = nameof(Paging.Offset),
-                                         In = ParameterLocation.Query,
-                                         Schema = new OpenApiSchema
-                                                  {
-                                                      Type = "integer",
-                                                      Format = "int32"
-                                                  }
-                                     });
-
-            operation.Parameters.Add(new OpenApiParameter
-                                     {
-                                         Name = nameof(Paging.Limit),
-                                         In = ParameterLocation.Query,
-                                         Schema = new OpenApiSchema
-                                                  {
-                                                      Type = "integer",
-                                                      Format = "int32"
-                                                  }
-                                     });
-
-            context.ApiDescription.ParameterDescriptions.Remove(parameterDescription);
-
-            context.ApiDescription.ParameterDescriptions.Add(new ApiParameterDescription
-                                                             {
-                                                                 Name = nameof(Paging.Offset),
-                                                                 Source = BindingSource.Query,
-                                                                 Type = typeof(int?),
-                                                                 ParameterDescriptor = new ParameterDescriptor
-                                                                                       {
-                                                                                           Name = nameof(Paging.Offset),
-                                                                                           ParameterType = typeof(int?)
-                                                                                       }
-                                                             });
-
-            context.ApiDescription.ParameterDescriptions.Add(new ApiParameterDescription
-                                                             {
-                                                                 Name = nameof(Paging.Limit),
-                                                                 Source = BindingSource.Query,
-                                                                 Type = typeof(int?),
-                                                                 ParameterDescriptor = new ParameterDescriptor
-                                                                                       {
-                                                                                           Name = nameof(Paging.Limit),
-                                                                                           ParameterType = typeof(int?)
-                                                                                       }
-                                                             });
-        }
+        schema.Properties.Remove("count");
     }
 }
