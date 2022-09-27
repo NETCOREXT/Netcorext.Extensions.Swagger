@@ -65,9 +65,9 @@ public static class ServiceCollectionExtension
                                                                           }, Array.Empty<string>()
                                                                       }
                                                                   });
-                                   
+
                                    options.CustomSchemaIds(ReplaceCustomId);
-                                   
+
                                    setupAction?.Invoke(options);
                                });
         

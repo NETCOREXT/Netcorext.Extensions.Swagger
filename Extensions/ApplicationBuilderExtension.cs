@@ -1,9 +1,12 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
+using Netcorext.Extensions.Swagger.Filters;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.AspNetCore.Builder;
 
-public static class ApplicationBuilderExtensions
+public static class ApplicationBuilderExtension
 {
     public static IApplicationBuilder UseSwagger(this IApplicationBuilder builder, string documentRoute = "/docs", string swaggerJsonRoutePattern = "{documentName}/swagger.{json|yaml|yml}", string defaultVersion = "v1")
     {
@@ -13,7 +16,7 @@ public static class ApplicationBuilderExtensions
 
         app.MapSwagger($"{documentRoute}/{swaggerJsonRoutePattern}");
 
-        var efp = new EmbeddedFileProvider(typeof(ApplicationBuilderExtensions).Assembly, typeof(ApplicationBuilderExtensions).Assembly.GetName().Name + ".wwwroot");
+        var efp = new EmbeddedFileProvider(typeof(ApplicationBuilderExtension).Assembly, typeof(ApplicationBuilderExtension).Assembly.GetName().Name + ".wwwroot");
 
         app.MapGet($"{documentRoute}/{{*remainder}}", context =>
                                                       {
@@ -49,12 +52,25 @@ public static class ApplicationBuilderExtensions
                                                           swaggerDoc = Regex.Replace(swaggerDoc, @"\{.*\}", "json", RegexOptions.IgnoreCase);
 
                                                           swaggerDoc = $"{documentRoute}/{swaggerDoc}";
-                                                                     
+
                                                           content = Regex.Replace(content, @"url:.*,", "url: location.origin + '" + swaggerDoc + "',", RegexOptions.IgnoreCase);
-                                                          
+
                                                           return context.Response.WriteAsync(content);
                                                       });
 
         return app;
+    }
+
+    public static IApplicationBuilder UseSwaggerCustomParameterFilter(this IApplicationBuilder builder, params OpenApiParameter[] parameters)
+    {
+        if (!parameters.Any()) return builder;
+
+        var app = (WebApplication)builder;
+
+        var swaggerOptions = app.Services.GetRequiredService<SwaggerGeneratorOptions>();
+
+        swaggerOptions.OperationFilters.Add(new CustomParameterFilter(parameters));
+
+        return builder;
     }
 }
