@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -10,6 +9,11 @@ public static class ServiceCollectionExtension
     {
         services.AddSwaggerGen(options =>
                                {
+                                   options.UseInlineDefinitionsForEnums();
+                                   options.UseAllOfForInheritance();
+                                   options.UseAllOfToExtendReferenceSchemas();
+                                   options.UseOneOfForPolymorphism();
+                                   
                                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                                                                            {
                                                                                Type = SecuritySchemeType.Http,
@@ -18,7 +22,7 @@ public static class ServiceCollectionExtension
                                                                                BearerFormat = "jwt",
                                                                                Scheme = "bearer"
                                                                            });
-                                   
+
                                    options.AddSecurityDefinition("OAuth2", new OpenApiSecurityScheme
                                                                            {
                                                                                Type = SecuritySchemeType.OAuth2,
@@ -48,7 +52,8 @@ public static class ServiceCollectionExtension
                                                                                               Id = "Bearer",
                                                                                               Type = ReferenceType.SecurityScheme
                                                                                           }
-                                                                          }, Array.Empty<string>()
+                                                                          },
+                                                                          Array.Empty<string>()
                                                                       }
                                                                   });
 
@@ -62,26 +67,16 @@ public static class ServiceCollectionExtension
                                                                                               Id = "OAuth2",
                                                                                               Type = ReferenceType.SecurityScheme
                                                                                           }
-                                                                          }, Array.Empty<string>()
+                                                                          },
+                                                                          Array.Empty<string>()
                                                                       }
                                                                   });
 
-                                   options.CustomSchemaIds(ReplaceCustomId);
-
+                                   options.CustomFriendlySchemaIds();
+                                   
                                    setupAction?.Invoke(options);
                                });
-        
+
         return services;
-    }
-
-    private static string ReplaceCustomId(Type type)
-    {
-        var id = type.ToString();
-
-        if (Regex.IsMatch(id, @"^[a-zA-Z0-9\.\-_]+$")) return id;
-        
-        id = Regex.Replace(id, @"[^a-zA-Z0-9\.\-_]", "_").Trim('_');
-
-        return id;
     }
 }
