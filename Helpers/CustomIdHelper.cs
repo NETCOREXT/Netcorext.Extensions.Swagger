@@ -61,7 +61,7 @@ public static class CustomIdHelper
 
         if (type.IsArray) return lastName == null ? $"{name[..^2]}Array" : $"{lastName}Of{name[..^2]}Array";
 
-        if (!type.IsGenericType || type.IsValueType || type == typeof(string)) return lastName == null ? name : $"{lastName}Of{name}";
+        if (!type.IsGenericType || (!type.IsGenericType && type.IsValueType) || type == typeof(string)) return lastName == null ? name : $"{lastName}Of{name}";
 
         var args = type.GetGenericArguments()
                        .Select(t => GetName(t, lastName))
