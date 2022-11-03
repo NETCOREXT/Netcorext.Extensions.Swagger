@@ -30,8 +30,18 @@
   <ItemGroup>
     <PackageReference Include="Netcorext.Contracts.Abstractions" Version="1.0.1-dev.*" />
   </ItemGroup>
+
+  <Target Name="DownloadFiles" AfterTargets="ResolveReferences">
+    <DownloadFile SourceUrl="https://cdn.jsdelivr.net/npm/swagger-ui-dist/oauth2-redirect.html"
+                  DestinationFolder="$(ProjectDir)/wwwroot"
+                  Condition="!Exists('$(ProjectDir)/wwwroot/oauth2-redirect.html')" />
+    <DownloadFile SourceUrl="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-initializer.js"
+                  DestinationFolder="$(ProjectDir)/wwwroot"
+                  Condition="!Exists('$(ProjectDir)/wwwroot/swagger-initializer.js')" />
+  </Target>
   
-  <Target Name="CopyFiles" AfterTargets="ResolveReferences">
+  <Target Name="CopyFiles" AfterTargets="DownloadFiles">
+    <Error Text="File not found" Condition="!Exists('$(ProjectDir)/wwwroot/oauth2-redirect.html') Or !Exists('$(ProjectDir)/wwwroot/swagger-initializer.js')" />
     <ItemGroup>
       <EmbeddedResource Include="wwwroot/*" />
     </ItemGroup>
